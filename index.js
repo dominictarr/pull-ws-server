@@ -29,7 +29,14 @@ exports.createServer = function (onConnection) {
     proxy(server, 'close')
 
     wsServer.on('connection', function (socket) {
-      emitter.emit('connection', ws(socket))
+      var stream = ws(socket)
+      stream.address=addr
+      stream.remoteAddress={
+        host:socket.upgradeReq.connection.remoteAddress,
+        port:socket.upgradeReq.connection.remotePort
+      }
+      stream.headers = socket.upgradeReq.headers
+      emitter.emit('connection', stream)
     })
 
     if(onListening)
