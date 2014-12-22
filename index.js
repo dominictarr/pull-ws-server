@@ -30,7 +30,12 @@ exports.createServer = function (onConnection) {
 
     wsServer.on('connection', function (socket) {
       var stream = ws(socket)
-      stream.socket = socket
+      stream.address=addr
+      stream.remoteAddress={
+        host:socket.upgradeReq.connection.remoteAddress,
+        port:socket.upgradeReq.connection.remotePort
+      }
+      stream.headers = socket.upgradeReq.headers
       emitter.emit('connection', stream)
     })
 
