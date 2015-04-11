@@ -23,10 +23,15 @@ exports.createServer = function (onConnection) {
   var server = http.createServer()
   var wsServer = new WebSocket.Server({server: server})
 
-  emitter.listen = function (addr, onListening) {
+  emitter.listen = function (addr, host, onListening) {
     proxy(server, 'listening')
     proxy(server, 'request')
     proxy(server, 'close')
+
+    if(typeof host == 'function') {
+      onListening = host
+      host = null
+    }
 
     wsServer.on('connection', function (socket) {
       var stream = ws(socket)
@@ -36,7 +41,7 @@ exports.createServer = function (onConnection) {
 
     if(onListening)
       emitter.once('listening', onListening)
-    server.listen(addr.port || addr)
+    server.listen(addr.port || addr, host || '0.0.0.0')
     return emitter
   }
 
